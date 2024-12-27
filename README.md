@@ -88,6 +88,11 @@ git clone <URL_РЕПОЗИТОРИЯ>
 
 ## Шаг 6: Добавление файла `.env`
 
+Заходим в папку проекта Transactions_parser_2.0
+```bash
+cd Transactions_parser_2.0
+```
+
 Создаём файл `.env` и добавляем в него переменные окружения:
 
 ```bash
@@ -96,9 +101,6 @@ nano .env
 
 Пример содержимого файла `.env`:
 ```
-PRIVATE_KEY=
-PUBLIC_KEY=
-
 POSTGRES_USER=
 POSTGRES_PASSWORD=
 POSTGRES_DB=
@@ -111,13 +113,18 @@ DATABASE_URL=
 
 ## Шаг 7: Создание и активация виртуального окружения (venv)
 
-1. Создаём виртуальное окружение:
+1. Заходим в папку проекта Transactions_parser_2.0
+```bash
+cd Transactions_parser_2.0
+```
+
+2. Создаём виртуальное окружение:
 
 ```bash
 python3.11 -m venv venv
 ```
 
-2. Активируем его:
+3. Активируем его:
 
 ```bash
 source venv/bin/activate
@@ -148,5 +155,3 @@ docker ps
 ---
 
 ## Шаг 9: Готово!
-
-Проект успешно запущен и доступен для использования.
