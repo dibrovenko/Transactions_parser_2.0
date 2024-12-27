@@ -1,0 +1,7 @@
+/db/data/
+/.idea/
+/.env
+/.venv/
+/app/logs/
+
+/db/data
