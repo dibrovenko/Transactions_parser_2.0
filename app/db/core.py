@@ -6,6 +6,7 @@ import traceback
 from typing import List, Type, Literal
 
 from sqlalchemy import Integer, and_, cast, func, insert, inspect, or_, select, text, desc
+from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime, timedelta
 
 
@@ -58,6 +59,38 @@ class AsyncORM:
             logger.error(f"Ошибка при записи транзакции: {e}, {class_sqlalchemy}")
 
     @staticmethod
+    async def select_transaction() -> List[TransactionDTO]:
+        async with async_session_factory() as session:
+            query = (
+                select(TransactionSQLAlchemy)
+            )
+            res = await session.execute(query)
+            result_orm = res.scalars().all()
+            result_dto = [TransactionDTO.model_validate(row, from_attributes=True) for row in result_orm]
+            return result_dto
+
+    @staticmethod
+    async def get_unique_mints_last_10_minutes() -> List[str]:
+        try:
+            async with async_session_factory() as session:
+                # SQL-запрос для поиска уникальных mint за последние 10 минут
+                ten_minutes_ago = datetime.now() - timedelta(minutes=10)
+                query = (
+                    select(TransactionSQLAlchemy.mint)
+                    .where(TransactionSQLAlchemy.created_at >= ten_minutes_ago)
+                    .distinct()
+                )
+                res = await session.execute(query)
+                unique_mints = [row[0] for row in res.all()]
+                return unique_mints
+        except SQLAlchemyError as e:
+            logger.error(f"Database error: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return []
+
+    @staticmethod
     async def check_memory_size_table(table_name: str):
         async with async_session_factory() as session:
             result_table = await session.execute(
@@ -73,17 +106,6 @@ class AsyncORM:
             result_db = await session.execute(text("SELECT pg_size_pretty(pg_database_size(current_database()));"))
             db_size = result_db.scalar()
             return db_size
-
-    @staticmethod
-    async def select_transaction() -> List[TransactionDTO]:
-        async with async_session_factory() as session:
-            query = (
-                select(TransactionSQLAlchemy)
-            )
-            res = await session.execute(query)
-            result_orm = res.scalars().all()
-            result_dto = [TransactionDTO.model_validate(row, from_attributes=True) for row in result_orm]
-            return result_dto
 
     @staticmethod
     def json_to_dto(transaction_dict) -> TransactionDTO:

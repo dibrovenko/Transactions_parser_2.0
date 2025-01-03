@@ -1,6 +1,14 @@
 import websockets
 import ssl
 import asyncio
+import logging
+
+
+from config import setup_logger
+from db.core import AsyncORM
+
+logger = setup_logger(name=__name__, log_file=__name__, level=logging.INFO)
+
 
 class WebSocketClient:
     """
@@ -23,6 +31,27 @@ class WebSocketClient:
         if self._websocket is None:
             self._websocket = await websockets.connect(self._uri, ssl=self._ssl_context)
         return self._websocket
+
+    async def reconnect(self):
+        if self._websocket.close:
+            from src.update_stream import subscribe_new_token, subscribe_token_list_trades
+            retry_max = 5
+            retry_count = 0
+            if retry_count < retry_max:
+                try:
+                    logger.info("Пытаемся подключиться к WebSocket серверу.")
+                    self._websocket = await websockets.connect(self._uri, ssl=self._ssl_context)
+                    unique_mints_last_10_minutes = await AsyncORM.get_unique_mints_last_10_minutes()
+                    await subscribe_token_list_trades(token_address_list=unique_mints_last_10_minutes)
+                    await subscribe_new_token()
+                    logger.info("Успешно переподключились к WebSocket серверу.")
+                    return self._websocket
+                except Exception as e:
+                    retry_count += 1
+                    logger.error(f"Ошибка подключения: {e}. Повтор через 0.1 секунду.")
+                    await asyncio.sleep(0.1)
+        return self._websocket
+
 
     async def close(self):
         """Закрытие WebSocket соединения."""

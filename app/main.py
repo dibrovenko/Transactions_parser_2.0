@@ -1,12 +1,11 @@
 import asyncio
 import logging
-
-from websocket_client import ws_client  # Импортируем экземпляр WebSocket клиента
 from config import setup_logger
 from db.core import AsyncORM
 from src import (
     save_transactions_to_db,
-    handle_messages
+    handle_messages,
+    ws_client
 )
 
 logger = setup_logger("main", "main.log", logging.DEBUG)
