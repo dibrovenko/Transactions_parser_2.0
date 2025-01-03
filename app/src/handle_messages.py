@@ -12,18 +12,9 @@ from config import handle_messages_config, setup_logger
 logger = setup_logger(name=__name__, log_file=__name__, level=logging.INFO)
 
 
-async def force_close(websocket, delay):
-    """Принудительно закрывает соединение через заданный таймаут."""
-    await asyncio.sleep(delay)  # Ожидание указанного времени
-    await websocket.close()  # Закрытие соединения
-
-
 async def handle_messages(websocket):
     """Обрабатывает входящие сообщения и подписывается на торговлю токенами при создании нового токена."""
     await subscribe_new_token()
-    # Создаем таймер для закрытия соединения через 10 минут
-    asyncio.create_task(force_close(websocket, delay=300))  # 600 секунд = 10 минут
-
     while True:
         try:
             # Ожидаем сообщение с тайм-аутом
