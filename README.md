@@ -111,7 +111,7 @@ DATABASE_URL=
 
 ---
 
-## Шаг 7: Создание и активация виртуального окружения (venv)
+## Шаг 7: Создание и активация виртуального окружения (необязательно)
 
 1. Заходим в папку проекта Transactions_parser_2.0
 ```bash
@@ -155,3 +155,9 @@ docker ps
 ---
 
 ## Шаг 9: Готово!
+команда чтобы скачать папку с логами 
+
+```bash
+scp -r root@213.109.204.190:/root/Transactions_parser_2.0/app/logs /Users/paveldibrovenko/Desktop/Crypto
+
+```
